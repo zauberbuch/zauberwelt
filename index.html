@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#7b3fe4">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Lia’s Zauberwelt</title>
+<style>
+:root{--bg:#fbf8ff;--card:#fff;--text:#241a3a;--muted:#6f6688;--accent:#7b3fe4;--accent2:#ff4fa3;--line:#e6ddf5;--ok:#1f8a4c;--err:#d6336c;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17102a;--card:#241a3d;--text:#f3edff;--muted:#b3a8d1;--accent:#a47bff;--accent2:#ff7ac0;--line:#3a2d5c;--ok:#4cc783;--err:#ff7a9f;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#17102a;--card:#241a3d;--text:#f3edff;--muted:#b3a8d1;--accent:#a47bff;--accent2:#ff7ac0;--line:#3a2d5c;--ok:#4cc783;--err:#ff7a9f;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--text);font:16px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}
+main{max-width:480px;margin:0 auto;padding:18px 16px 40px}
+header{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+header img{width:56px;height:56px;border-radius:14px;flex:none}
+h1{font-size:23px;margin:0;line-height:1.1}
+.st{font-size:13px;color:var(--muted)}
+.tabs{display:flex;gap:8px;margin:14px 0}
+.tabs button{flex:1;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--text);font:inherit;font-weight:700}
+.tabs button.on{background:linear-gradient(135deg,var(--accent),var(--accent2));border-color:transparent;color:#fff}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px}
+.big,.btn{display:block;width:100%;padding:16px;border-radius:14px;border:0;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font:inherit;font-weight:700;text-align:center;text-decoration:none;cursor:pointer}
+.big[disabled]{opacity:.45}
+.btn{padding:11px;background:var(--card);color:var(--text);border:1px solid var(--line);margin-top:8px}
+input[type=url],input[type=text]{width:100%;padding:12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--text);font:inherit;margin:8px 0}
+.strip{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 4px}
+.strip img{width:64px;height:64px;object-fit:cover;border-radius:10px;border:2px solid var(--accent)}
+.msg{padding:12px;border-radius:10px;margin-top:10px;font-weight:600}
+.msg.err{background:rgba(214,51,108,.13);color:var(--err)}
+.msg.ok{background:rgba(31,138,76,.14);color:var(--ok)}
+.row{display:flex;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
+.row img{width:48px;height:48px;object-fit:cover;border-radius:8px}
+.row .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row button{border:0;background:none;color:var(--err);font:inherit;font-weight:600}
+.hide{display:none}
+small{color:var(--muted)}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <img id="logo" src="icon-192.png" alt="">
+  <div><h1>Lia’s Zauberwelt</h1><div class="st">📱 Gespeichert auf diesem Gerät</div></div>
+</header>
+
+<div class="tabs">
+  <button id="tScan" class="on">✨ Zaubern</button>
+  <button id="tLink">🔗 Verknüpfen</button>
+</div>
+
+<section id="vScan">
+  <div class="card">
+    <label class="big" for="scanIn">📷 Zauberbild fotografieren</label>
+    <input id="scanIn" type="file" accept="image/*" capture="environment" class="hide">
+    <div id="scanOut"></div>
+  </div>
+</section>
+
+<section id="vLink" class="hide">
+  <div class="card">
+    <strong>1. Mehrere Fotos vom selben Bild</strong><br>
+    <small>Wie beim Fingerabdruck: mindestens 3 Fotos, gern 5. Leicht anders halten: etwas näher, etwas weiter weg, ein bisschen schräg, anderes Licht.</small>
+    <label class="big" for="linkIn" style="margin-top:12px">📷 Foto hinzufügen</label>
+    <input id="linkIn" type="file" accept="image/*" capture="environment" class="hide">
+    <div id="strip" class="strip"></div>
+    <small id="count">Noch kein Foto.</small>
+    <div id="newBox" class="hide" style="margin-top:12px">
+      <strong>2. Name und Link</strong>
+      <input id="newTitle" type="text" placeholder="Name (z. B. Zauberwürfel Anleitung)">
+      <input id="newUrl" type="url" placeholder="YouTube-Link einfügen" inputmode="url">
+      <button id="saveBtn" class="big">Verknüpfung speichern</button>
+      <button id="resetBtn" class="btn">Neu beginnen</button>
+    </div>
+    <div id="linkMsg"></div>
+  </div>
+  <div class="card">
+    <strong>Gespeicherte Verknüpfungen</strong>
+    <div id="list"></div>
+    <input id="addIn" type="file" accept="image/*" capture="environment" class="hide">
+    <div id="addMsg"></div>
+    <small id="empty">Noch nichts gespeichert.</small>
+  </div>
+  <div class="card">
+    <strong>Sicherung</strong><br><small>Als Datei speichern oder aus einer Sicherung wiederherstellen.</small>
+    <button id="expBtn" class="btn">⬇️ Sicherung speichern</button>
+    <label class="btn" for="impIn">⬆️ Sicherung laden</label>
+    <input id="impIn" type="file" accept=".json,application/json" class="hide">
+    <div id="bakMsg"></div>
+  </div>
+</section>
+</main>
+
+<script>
+const KEY='liaszauberwelt:v2';
+const $=id=>document.getElementById(id);
+let items=[];
+try{items=JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){items=[]}
+function persist(){try{localStorage.setItem(KEY,JSON.stringify(items));return true}catch(e){return false}}
+const esc=s=>String(s).replace(/[<>&"]/g,'');
+
+// --- Icon ---
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+
+// --- Tabs ---
+function tab(w){
+  $('vScan').classList.toggle('hide',w!=='scan');$('vLink').classList.toggle('hide',w!=='link');
+  $('tScan').classList.toggle('on',w==='scan');$('tLink').classList.toggle('on',w==='link');
+}
+$('tScan').onclick=()=>tab('scan');$('tLink').onclick=()=>tab('link');
+
+// --- Bild-Fingerabdruck ---
+// Je Foto werden 5 Ausschnitte (50–100 % der Mitte) zu 16x16-Graubildern verkleinert.
+// Verglichen wird per Korrelation: unabhängig von Helligkeit und Kontrast, tolerant bei leichten Verschiebungen.
+const FR=[0.5,0.65,0.8,0.95,1];
+const N=256;
+function loadImg(file){return new Promise((res,rej)=>{const im=new Image();im.onload=()=>res(im);im.onerror=()=>rej(new Error('Bild konnte nicht geladen werden'));im.src=URL.createObjectURL(file)})}
+function crop(im,w,h,frac){
+  const c=document.createElement('canvas');c.width=w;c.height=h;
+  const s=Math.min(im.naturalWidth,im.naturalHeight)*frac;
+  const x=c.getContext('2d',{willReadFrequently:true});
+  x.imageSmoothingEnabled=true;x.imageSmoothingQuality='high';
+  x.drawImage(im,(im.naturalWidth-s)/2,(im.naturalHeight-s)/2,s,s,0,0,w,h);
+  return c;
+}
+function gray16(im,frac){
+  const c1=crop(im,64,64,frac);
+  const c2=document.createElement('canvas');c2.width=c2.height=16;
+  const x=c2.getContext('2d',{willReadFrequently:true});
+  x.imageSmoothingEnabled=true;x.imageSmoothingQuality='high';
+  x.drawImage(c1,0,0,16,16);
+  const d=x.getImageData(0,0,16,16).data,g=new Float32Array(N);
+  for(let i=0;i<N;i++)g[i]=.299*d[i*4]+.587*d[i*4+1]+.114*d[i*4+2];
+  return g;
+}
+function norm(a){
+  let m=0;for(let i=0;i<a.length;i++)m+=a[i];m/=a.length;
+  const o=new Float32Array(a.length);let s=0;
+  for(let i=0;i<a.length;i++){o[i]=a[i]-m;s+=o[i]*o[i]}
+  s=Math.sqrt(s)||1;for(let i=0;i<a.length;i++)o[i]/=s;return o;
+}
+function enc(v){const q=new Uint8Array(N);for(let i=0;i<N;i++)q[i]=Math.max(0,Math.min(255,Math.round(v[i]*500+128)));
+  let s='';for(let i=0;i<N;i++)s+=String.fromCharCode(q[i]);return btoa(s)}
+function dec(b){const s=atob(b),v=new Float32Array(N);for(let i=0;i<N;i++)v[i]=(s.charCodeAt(i)-128)/500;return norm(v)}
+const dot=(a,b)=>{let s=0;for(let i=0;i<N;i++)s+=a[i]*b[i];return s};
+const cache=new Map();
+function vecsOf(it){let v=cache.get(it.id);if(!v){v=it.descs.map(dec);cache.set(it.id,v)}return v}
+function score(it,qs){let best=-1;for(const v of vecsOf(it))for(const q of qs){const d=dot(v,q);if(d>best)best=d}return best}
+const thumb=im=>crop(im,96,96,1).toDataURL('image/jpeg',.7);
+function okUrl(s){try{const u=new URL(String(s).trim());return u.protocol==='https:'&&/(^|\.)(youtube\.com|youtu\.be)$/.test(u.hostname)?u.href:null}catch(e){return null}}
+
+// --- Verknüpfen ---
+let pend={descs:[],thumbs:[]};
+const MIN=3;
+function drawPending(){
+  const n=pend.thumbs.length;
+  $('strip').innerHTML='';pend.thumbs.forEach(t=>{const i=document.createElement('img');i.src=t;i.alt='';$('strip').append(i)});
+  $('count').textContent=n?(n+' Foto'+(n>1?'s':'')+(n<MIN?' – noch '+(MIN-n)+' nötig':' – gern noch eins')+'.'):'Noch kein Foto.';
+  $('newBox').classList.toggle('hide',n<MIN);
+}
+$('linkIn').onchange=async e=>{
+  const f=e.target.files[0];if(!f)return;$('linkMsg').innerHTML='';
+  try{
+    const im=await loadImg(f);
+    FR.forEach(fr=>pend.descs.push(enc(norm(gray16(im,fr)))));
+    pend.thumbs.push(thumb(im));drawPending();
+  }catch(err){$('linkMsg').innerHTML='<div class="msg err">'+esc(err.message)+'</div>'}
+  e.target.value='';
+};
+$('resetBtn').onclick=()=>{pend={descs:[],thumbs:[]};drawPending();$('linkMsg').innerHTML=''};
+$('saveBtn').onclick=()=>{
+  const url=okUrl($('newUrl').value);
+  if(!url){$('linkMsg').innerHTML='<div class="msg err">Bitte einen gültigen YouTube-Link (https://…) einfügen.</div>';return}
+  if(pend.thumbs.length<MIN)return;
+  const it={id:Date.now(),descs:pend.descs,thumb:pend.thumbs[0],photos:pend.thumbs.length,url,title:$('newTitle').value.trim()||'Ohne Namen'};
+  items.push(it);
+  if(!persist()){items.pop();$('linkMsg').innerHTML='<div class="msg err">Speichern nicht möglich (Speicher voll oder gesperrt).</div>';return}
+  pend={descs:[],thumbs:[]};drawPending();$('newUrl').value='';$('newTitle').value='';
+  $('linkMsg').innerHTML='<div class="msg ok">Gespeichert ✓</div>';render();
+};
+function render(){
+  $('list').innerHTML='';$('empty').classList.toggle('hide',items.length>0);
+  items.forEach(it=>{
+    const r=document.createElement('div');r.className='row';
+    const im=document.createElement('img');im.src=it.thumb;im.alt='';
+    const t=document.createElement('div');t.className='t';t.textContent=it.title+' ('+it.photos+' Fotos)';
+    const p=document.createElement('button');p.textContent='＋ Foto';p.style.color='var(--accent)';
+    p.onclick=()=>{addTarget=it.id;$('addMsg').innerHTML='';$('addIn').click()};
+    const b=document.createElement('button');b.textContent='Löschen';
+    b.onclick=()=>{items=items.filter(x=>x.id!==it.id);cache.delete(it.id);persist();render()};
+    r.append(im,t,p,b);$('list').append(r);
+  });
+}
+
+// --- Fotos nachträglich hinzufügen ---
+let addTarget=null;
+$('addIn').onchange=async e=>{
+  const f=e.target.files[0];e.target.value='';if(!f||addTarget==null)return;
+  const it=items.find(x=>x.id===addTarget);if(!it)return;
+  try{
+    const im=await loadImg(f);
+    const old=it.descs.slice(),oldN=it.photos;
+    FR.forEach(fr=>it.descs.push(enc(norm(gray16(im,fr)))));
+    it.photos=(it.photos||1)+1;
+    if(!persist()){it.descs=old;it.photos=oldN;$('addMsg').innerHTML='<div class="msg err">Speichern nicht möglich (Speicher voll).</div>';return}
+    cache.delete(it.id);render();
+    $('addMsg').innerHTML='<div class="msg ok">Foto hinzugefügt ✓ ('+esc(it.title)+': jetzt '+it.photos+' Fotos). Tippe noch einmal „＋ Foto“ für weitere.</div>';
+  }catch(err){$('addMsg').innerHTML='<div class="msg err">'+esc(err.message)+'</div>'}
+};
+
+// --- Zaubern ---
+const THRESH=0.55,MARGIN=0.08;
+$('scanIn').onchange=async e=>{
+  const f=e.target.files[0];if(!f)return;const out=$('scanOut');out.innerHTML='';
+  if(!items.length){out.innerHTML='<div class="msg err">Noch keine Zauberbilder vorhanden.</div>';e.target.value='';return}
+  try{
+    const im=await loadImg(f);
+    const qs=FR.map(fr=>norm(gray16(im,fr)));
+    const r=items.map(it=>({it,s:score(it,qs)})).sort((a,b)=>b.s-a.s);
+    const best=r[0],second=r[1],pct=Math.round(best.s*100);
+    if(best.s>=THRESH&&(!second||best.s-second.s>=MARGIN)){
+      out.innerHTML='<div class="msg ok">✨ Gefunden: '+esc(best.it.title)+' <small>('+pct+' %)</small></div>';
+      const a=document.createElement('a');a.className='big';a.style.marginTop='10px';
+      a.href=best.it.url;a.target='_blank';a.rel='noopener';a.textContent='▶ Video öffnen';out.append(a);
+      try{window.open(best.it.url,'_blank','noopener')}catch(_){}
+    }else if(best.s>=THRESH){
+      out.innerHTML='<div class="msg err">Nicht eindeutig, mehrere Bilder sehen ähnlich aus. Noch einmal geradeaus fotografieren! <small>('+pct+' %)</small></div>';
+    }else out.innerHTML='<div class="msg err">Kein Zauber gefunden. Noch einmal näher, gerade und mit gutem Licht! <small>(beste Übereinstimmung '+pct+' %)</small></div>';
+  }catch(err){out.innerHTML='<div class="msg err">'+esc(err.message)+'</div>'}
+  e.target.value='';
+};
+
+// --- Sicherung ---
+$('expBtn').onclick=()=>{
+  try{const bl=new Blob([JSON.stringify(items)],{type:'application/json'});
+    const l=document.createElement('a');l.href=URL.createObjectURL(bl);l.download='lias-zauberwelt-sicherung.json';
+    document.body.append(l);l.click();l.remove();
+    $('bakMsg').innerHTML='<div class="msg ok">Sicherung wird heruntergeladen ✓</div>'}
+  catch(e){$('bakMsg').innerHTML='<div class="msg err">Sicherung nicht gespeichert.</div>'}
+};
+$('impIn').onchange=async e=>{
+  const f=e.target.files[0];if(!f)return;e.target.value='';
+  try{
+    const arr=JSON.parse(await f.text());if(!Array.isArray(arr))throw 0;
+    const have=new Set(items.map(i=>i.id));let n=0;
+    arr.forEach(x=>{
+      if(x&&Array.isArray(x.descs)&&x.descs.length&&x.descs.every(d=>typeof d==='string'&&d.length===344)&&okUrl(x.url)&&!have.has(x.id)){
+        items.push({id:Number(x.id)||Date.now()+n,descs:x.descs,thumb:typeof x.thumb==='string'&&x.thumb.startsWith('data:image/')?x.thumb:'',photos:Number(x.photos)||1,url:okUrl(x.url),title:esc(x.title||'Ohne Namen')});n++;
+      }
+    });
+    persist();render();
+    $('bakMsg').innerHTML='<div class="msg ok">'+n+' Verknüpfung(en) wiederhergestellt ✓</div>';
+  }catch(err){$('bakMsg').innerHTML='<div class="msg err">Datei konnte nicht gelesen werden.</div>'}
+};
+render();drawPending();
+</script>
+</body>
+</html>
